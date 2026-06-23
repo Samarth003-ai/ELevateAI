@@ -78,6 +78,34 @@ class _JobsScreenState extends State<JobsScreen> {
     await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
+  List<JobModel> matchedJobs = [];
+  bool isMatchedLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchMatchedJobs();
+  }
+
+  Future<void> fetchMatchedJobs() async {
+    setState(() {
+      isMatchedLoading = true;
+    });
+
+    try {
+      final result = await JobService().getMatchedJobs();
+      setState(() {
+        matchedJobs = result;
+      });
+    } catch (e) {
+      debugPrint("Failed to load matched jobs: $e");
+    } finally {
+      setState(() {
+        isMatchedLoading = false;
+      });
+    }
+  }
+
   @override
   void dispose() {
     searchController.dispose();
@@ -137,9 +165,150 @@ class _JobsScreenState extends State<JobsScreen> {
 
             const SizedBox(height: 20),
 
+            if (isMatchedLoading)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20),
+                  child: CircularProgressIndicator(),
+                ),
+              )
+            else if (matchedJobs.isNotEmpty) ...[
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "Opportunities for you ✨",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF0F172A),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              SizedBox(
+                height: 145,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: matchedJobs.length,
+                  itemBuilder: (context, index) {
+                    final job = matchedJobs[index];
+                    return Container(
+                      width: 270,
+                      margin: const EdgeInsets.only(right: 12, bottom: 4),
+                      child: Card(
+                        elevation: 2,
+                        shadowColor: const Color(0x0A000000),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(color: Colors.grey[100]!, width: 1),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      job.title,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF1E293B),
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      job.company,
+                                      style: TextStyle(
+                                        color: Colors.grey[600],
+                                        fontSize: 12,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      job.location,
+                                      style: TextStyle(
+                                        color: Colors.grey[500],
+                                        fontSize: 11,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  TextButton(
+                                    onPressed: () => saveJob(job),
+                                    style: TextButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                                      minimumSize: Size.zero,
+                                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                    ),
+                                    child: const Text("Save"),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  ElevatedButton(
+                                    onPressed: () => openApplyLink(job.applyLink),
+                                    style: ElevatedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                      minimumSize: Size.zero,
+                                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                    ),
+                                    child: const Text(
+                                      "Apply",
+                                      style: TextStyle(fontSize: 12),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 20),
+            ],
+
+            if (jobs.isNotEmpty)
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: 12),
+                  child: Text(
+                    "Search Results",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF0F172A),
+                    ),
+                  ),
+                ),
+              ),
+
             Expanded(
-              child: ListView.builder(
-                itemCount: jobs.length,
+              child: jobs.isEmpty
+                  ? Center(
+                      child: Text(
+                        isLoading ? "" : "Search for jobs to get started",
+                        style: TextStyle(color: Colors.grey[500]),
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: jobs.length,
 
                 itemBuilder: (context, index) {
                   final job = jobs[index];

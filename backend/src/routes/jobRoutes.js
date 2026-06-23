@@ -13,10 +13,22 @@ const {
     "../controllers/jobControllers"
 );
 
+const {
+    getMatchedJobs,
+} = require(
+    "../controllers/matchingController"
+);
+
 router.get(
     "/search",
     protect,
     getJobs
+);
+
+router.get(
+    "/matches",
+    protect,
+    getMatchedJobs
 );
 
 module.exports =

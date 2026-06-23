@@ -23,4 +23,21 @@ class JobService {
 
     return jobs.map((job) => JobModel.fromJson(job)).toList();
   }
+
+  Future<List<JobModel>> getMatchedJobs() async {
+    final token = await TokenService().getToken();
+
+    final response = await http.get(
+      Uri.parse("$baseUrl/jobs/matches"),
+      headers: {"Authorization": "Bearer $token"},
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final jobs = data["jobs"] as List;
+      return jobs.map((job) => JobModel.fromJson(job)).toList();
+    } else {
+      throw Exception("Failed to load job matches");
+    }
+  }
 }
