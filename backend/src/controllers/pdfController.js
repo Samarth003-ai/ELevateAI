@@ -2,6 +2,7 @@ const puppeteer = require("puppeteer");
 
 const Resume = require("../models/Resume");
 const modernBlueTemplate = require("../templates/modernBlueTemplate");
+const atsFriendlyTemplate = require("../templates/atsFriendlyTemplate");
 
 const generatePDF = async (req, res) => {
     try {
@@ -16,7 +17,12 @@ const generatePDF = async (req, res) => {
             });
         }
 
-        const html = modernBlueTemplate(resume);   //generate html
+        const templateMap = {
+            modern_blue: modernBlueTemplate,
+            ats_friendly: atsFriendlyTemplate,
+        };
+        const templateFn = templateMap[resume.template] || atsFriendlyTemplate;
+        const html = templateFn(resume);
 
         //launch chrome(pupperteer does this secretely)
 

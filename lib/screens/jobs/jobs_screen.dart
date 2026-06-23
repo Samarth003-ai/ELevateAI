@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:resume_builder/screens/jobs/saved_jobs_screen.dart';
 
 import '../../core/services/job_service.dart';
+import '../../core/services/saved_job_service.dart';
 import '../../models/job_model.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -17,6 +19,28 @@ class _JobsScreenState extends State<JobsScreen> {
   List<JobModel> jobs = [];
 
   bool isLoading = false;
+
+  Future<void> saveJob(JobModel job) async {
+    try {
+      await SavedJobService().saveJob(
+        jobId: job.jobId,
+        title: job.title,
+        company: job.company,
+        location: job.location,
+        applyLink: job.applyLink,
+      );
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Job Saved")));
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
+    }
+  }
 
   Future<void> searchJobs() async {
     if (searchController.text.trim().isEmpty) {
@@ -64,7 +88,23 @@ class _JobsScreenState extends State<JobsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Jobs")),
+      appBar: AppBar(
+        title: const Text("Jobs"),
+
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+
+                MaterialPageRoute(builder: (_) => const SavedJobsScreen()),
+              );
+            },
+
+            icon: const Icon(Icons.bookmark),
+          ),
+        ],
+      ),
 
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -132,16 +172,28 @@ class _JobsScreenState extends State<JobsScreen> {
 
                           const SizedBox(height: 10),
 
-                          Align(
-                            alignment: Alignment.centerRight,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
 
-                            child: ElevatedButton(
-                              onPressed: () {
-                                openApplyLink(job.applyLink);
-                              },
+                            children: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  saveJob(job);
+                                },
 
-                              child: const Text("Apply"),
-                            ),
+                                child: const Text("Save"),
+                              ),
+
+                              const SizedBox(width: 10),
+
+                              ElevatedButton(
+                                onPressed: () {
+                                  openApplyLink(job.applyLink);
+                                },
+
+                                child: const Text("Apply"),
+                              ),
+                            ],
                           ),
                         ],
                       ),

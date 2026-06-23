@@ -1,11 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:resume_builder/screens/auth/login_screen.dart';
 import '../../core/services/token_service.dart';
-
-import '../auth/login_screen.dart';
-
 import '../dashboard/dashboard_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -16,12 +14,10 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  @override
   Future<void> checkLoginStatus() async {
     final token = await TokenService().getToken();
 
     await Future.delayed(
-      //to make the splash screen visible
       const Duration(seconds: 2),
     );
 
@@ -42,6 +38,7 @@ class _SplashScreenState extends State<SplashScreen> {
     }
   }
 
+  @override
   void initState() {
     super.initState();
 
@@ -50,21 +47,73 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0x0D2563EB), // Primary with 5% opacity
+              Colors.white,
+            ],
+          ),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
 
-          children: [
-            Icon(Icons.work, size: 80),
+            children: [
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: const BoxDecoration(
+                  color: Color(0x1A2563EB), // Primary with 10% opacity
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.work,
+                  size: 64,
+                  color: theme.colorScheme.primary,
+                ),
+              ),
 
-            SizedBox(height: 20),
+              const SizedBox(height: 24),
 
-            Text(
-              "CareerConnect",
-              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-            ),
-          ],
+              Text(
+                "CareerConnect",
+                style: GoogleFonts.outfit(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.primary,
+                  letterSpacing: 0.5,
+                ),
+              ),
+
+              const SizedBox(height: 8),
+
+              Text(
+                "Build your career, step by step",
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: Colors.grey[600],
+                  letterSpacing: 0.2,
+                ),
+              ),
+
+              const SizedBox(height: 48),
+
+              SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

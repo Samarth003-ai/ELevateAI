@@ -82,11 +82,19 @@ class ResumeService {
 
     required String phone,
 
+    required String address,
+
     required String linkedin,
 
     required String github,
 
     required List<dynamic> skills,
+
+    required List<dynamic> education,
+
+    required List<dynamic> experience,
+
+    required List<dynamic> projects,
   }) async {
     final token = await TokenService().getToken();
 
@@ -111,11 +119,16 @@ class ResumeService {
 
           "phone": phone,
 
+          "address": address,
+
           "linkedin": linkedin,
 
           "github": github,
         },
         "skills": skills,
+        "education": education,
+        "experience": experience,
+        "projects": projects,
       }),
     );
   }

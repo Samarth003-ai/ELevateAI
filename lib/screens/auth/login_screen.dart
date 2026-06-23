@@ -19,6 +19,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   final passwordController = TextEditingController();
 
+  bool isLoading = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,31 +67,82 @@ class _LoginScreenState extends State<LoginScreen> {
                 width: double.infinity,
 
                 child: ElevatedButton(
-                  onPressed: () async {
-                    final result = await AuthService().login(
-                      emailController.text,
-                      passwordController.text,
-                    );
+                  onPressed: isLoading
+                      ? null
+                      : () async {
+                          if (emailController.text.trim().isEmpty ||
+                              passwordController.text.trim().isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text("Please enter both email and password")),
+                            );
+                            return;
+                          }
 
-                    if (result["success"]) {
-                      await TokenService().saveToken(result["token"]);
+                          setState(() {
+                            isLoading = true;
+                          });
 
-                      Provider.of<AuthProvider>(
-                        context,
-                        listen: false,
-                      ).setToken(result["token"]);
+                          try {
+                            final result = await AuthService().login(
+                              emailController.text.trim(),
+                              passwordController.text.trim(),
+                            );
 
-                      Navigator.pushReplacement(
-                        context,
+                            if (result["success"] == true) {
+                              await TokenService().saveToken(result["token"]);
 
-                        MaterialPageRoute(
-                          builder: (_) => const DashboardScreen(),
-                        ),
-                      );
-                    }
-                  },
+                              if (!context.mounted) return;
 
-                  child: const Text("Login"),
+                              Provider.of<AuthProvider>(
+                                context,
+                                listen: false,
+                              ).setToken(result["token"]);
+
+                              Navigator.pushReplacement(
+                                context,
+
+                                MaterialPageRoute(
+                                  builder: (_) => const DashboardScreen(),
+                                ),
+                              );
+                            } else {
+                              if (!context.mounted) return;
+                              final message = result["message"] ?? "Login failed";
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(message)),
+                              );
+                            }
+                          } catch (e) {
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  "Connection failed: ${e.toString()}\n"
+                                  "Ensure backend is running. (Note: use 10.0.2.2 for Android Emulator, 127.0.0.1/localhost for iOS Simulator, or host computer IP for physical devices)",
+                                ),
+                                duration: const Duration(seconds: 6),
+                              ),
+                            );
+                          } finally {
+                            if (mounted) {
+                              setState(() {
+                                isLoading = false;
+                              });
+                            }
+                          }
+                        },
+
+                  child: isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Text("Login"),
                 ),
               ),
             ],

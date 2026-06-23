@@ -3,12 +3,14 @@ class JobModel {
   final String company;
   final String location;
   final String applyLink;
+  final String jobId;
 
   JobModel({
     required this.title,
     required this.company,
     required this.location,
     required this.applyLink,
+    required this.jobId,
   });
 
   factory JobModel.fromJson(Map<String, dynamic> json) {
@@ -17,6 +19,7 @@ class JobModel {
       company: json["employer_name"] ?? "",
       location: json["job_location"] ?? "",
       applyLink: json["job_apply_link"] ?? "",
+      jobId: json["job_id"] ?? "",
     );
   }
 }
