@@ -11,6 +11,8 @@ import 'package:resume_builder/screens/jobs/application_tracker_screen.dart';
 import 'package:resume_builder/screens/jobs/jobs_screen.dart';
 import 'package:resume_builder/screens/jobs/saved_jobs_screen.dart';
 import 'package:resume_builder/screens/resume/create_resume_screen.dart';
+import 'package:resume_builder/screens/chat/chat_screen.dart';
+
 
 class HomeTab extends StatefulWidget {
   const HomeTab({super.key});
@@ -50,10 +52,12 @@ class _HomeTabState extends State<HomeTab> {
       return <SavedJobModel>[];
     });
 
-    final applicationsFuture = ApplicationService().getApplications().catchError((e) {
-      debugPrint("Error loading applications: $e");
-      return <ApplicationModel>[];
-    });
+    final applicationsFuture = ApplicationService()
+        .getApplications()
+        .catchError((e) {
+          debugPrint("Error loading applications: $e");
+          return <ApplicationModel>[];
+        });
 
     final results = await Future.wait([
       profileFuture,
@@ -87,7 +91,12 @@ class _HomeTabState extends State<HomeTab> {
     }
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
+  Widget _buildStatCard(
+    String title,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return Card(
       elevation: 2.5,
       shadowColor: const Color(0x0F000000),
@@ -197,7 +206,7 @@ class _HomeTabState extends State<HomeTab> {
             color: Color(0x05000000),
             blurRadius: 8,
             offset: Offset(0, 2),
-          )
+          ),
         ],
       ),
       child: Row(
@@ -208,11 +217,7 @@ class _HomeTabState extends State<HomeTab> {
               color: statusColor.withValues(alpha: 0.08),
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              Icons.business,
-              color: statusColor,
-              size: 22,
-            ),
+            child: Icon(Icons.business, color: statusColor, size: 22),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -280,11 +285,7 @@ class _HomeTabState extends State<HomeTab> {
               color: Colors.white,
               shape: BoxShape.circle,
             ),
-            child: const Icon(
-              Icons.lightbulb,
-              color: Colors.indigo,
-              size: 24,
-            ),
+            child: const Icon(Icons.lightbulb, color: Colors.indigo, size: 24),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -318,11 +319,22 @@ class _HomeTabState extends State<HomeTab> {
 
   @override
   Widget build(BuildContext context) {
-    return RefreshIndicator(
-      onRefresh: () async {
-        _refreshData();
-        await _dashboardDataFuture;
-      },
+    return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const ChatScreen()),
+          );
+        },
+        backgroundColor: const Color(0xFF1E3A8A),
+        child: const Icon(Icons.chat_bubble_outline, color: Colors.white),
+      ),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          _refreshData();
+          await _dashboardDataFuture;
+        },
       child: FutureBuilder<Map<String, dynamic>>(
         future: _dashboardDataFuture,
         builder: (context, snapshot) {
@@ -337,7 +349,11 @@ class _HomeTabState extends State<HomeTab> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.error_outline, color: Colors.red, size: 48),
+                    const Icon(
+                      Icons.error_outline,
+                      color: Colors.red,
+                      size: 48,
+                    ),
                     const SizedBox(height: 16),
                     Text(
                       snapshot.error.toString(),
@@ -374,7 +390,10 @@ class _HomeTabState extends State<HomeTab> {
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [Color(0xFF1E3A8A), Color(0xFF3B82F6)], // Deep blue gradient
+                      colors: [
+                        Color(0xFF1E3A8A),
+                        Color(0xFF3B82F6),
+                      ], // Deep blue gradient
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -384,7 +403,7 @@ class _HomeTabState extends State<HomeTab> {
                         color: Color(0x1F2563EB),
                         blurRadius: 12,
                         offset: Offset(0, 6),
-                      )
+                      ),
                     ],
                   ),
                   child: Row(
@@ -556,7 +575,9 @@ class _HomeTabState extends State<HomeTab> {
                     ),
                   )
                 else
-                  ...applications.take(3).map((app) => _buildRecentApplicationTile(app)),
+                  ...applications
+                      .take(3)
+                      .map((app) => _buildRecentApplicationTile(app)),
 
                 const SizedBox(height: 25),
 
@@ -567,6 +588,7 @@ class _HomeTabState extends State<HomeTab> {
           );
         },
       ),
-    );
-  }
+    ),
+  );
+}
 }

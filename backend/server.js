@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
+dotenv.config();
 const authRoutes = require("./src/routes/authRoutes")
 const userRoutes = require("./src/routes/userRoutes")
 // profileRoutes will be loaded later with error handling
@@ -13,11 +14,11 @@ const jobRoutes =
     require("./src/routes/jobRoutes");
 const savedJobRoutes =
     require("./src/routes/savedJobRoutes");
+const chatRoutes = require("./src/routes/chatRoutes");
 
 
 const connectDB = require("./src/config/db");
 
-dotenv.config();
 
 connectDB();
 
@@ -41,6 +42,7 @@ app.use(
     "/api/saved-jobs",
     savedJobRoutes
 );
+app.use("/api/chat", chatRoutes);
 
 
 let profileRoutes;
@@ -53,7 +55,7 @@ try {
 app.use("/api/profile", profileRoutes);
 
 app.get("/", (req, res) => {
-    res.send("CareerConnect API Running");
+    res.send("Elevate AI API Running");
 });
 
 const PORT = process.env.PORT || 5000;

@@ -10,13 +10,13 @@ void main() {
       //creates a single instance of AuthProvider and makes it available to the entire app.
       create: (_) => AuthProvider(),
 
-      child: const CareerConnectApp(),
+      child: const ElevateAIApp(),
     ),
   );
 }
 
-class CareerConnectApp extends StatelessWidget {
-  const CareerConnectApp({super.key});
+class ElevateAIApp extends StatelessWidget {
+  const ElevateAIApp({super.key});
 
   @override
   Widget build(BuildContext context) {

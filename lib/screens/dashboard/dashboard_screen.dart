@@ -31,7 +31,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("CareerConnect"),
+        title: const Text("Elevate AI"),
 
         actions: [
           IconButton(

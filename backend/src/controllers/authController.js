@@ -46,31 +46,39 @@ const registerUser = async (req, res) => {
     }
 };
 
-//login 
 const loginUser = async (req, res) => {
     try {
 
         const { email, password } = req.body;
+        console.log("=== LOGIN ATTEMPT ===");
+        console.log("Incoming Email:", email);
+        console.log("Incoming Password:", password);
 
         const user = await User.findOne({
             email,
         });
 
         if (!user) {
+            console.log("Login failed: User not found in DB");
             return res.status(400).json({
                 success: false,
                 message: "Invalid credentials",
             });
         }
+
+        console.log("User found in DB:", user.name, "Email:", user.email);
 
         const isMatch = await bcrypt.compare(password, user.password); // compares hashed password
+        console.log("Password match result:", isMatch);
 
         if (!isMatch) {
+            console.log("Login failed: Password did not match");
             return res.status(400).json({
                 success: false,
                 message: "Invalid credentials",
             });
         }
+        console.log("Login successful!");
 
         const token = jwt.sign(
             {
